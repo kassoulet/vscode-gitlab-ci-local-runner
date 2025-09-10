@@ -1,0 +1,114 @@
+{
+  "name": "gitlab-ci-local-runner",
+  "displayName": "GitLab CI Local Runner",
+  "description": "Run GitLab CI/CD jobs locally using gitlab-ci-local",
+  "version": "0.1.0",
+  "publisher": "kassoulet",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "vscode": "^1.103.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:yaml",
+    "workspaceContains:.gitlab-ci.yml",
+    "workspaceContains:.gitlab-ci.yaml"
+  ],
+  "main": "out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "gitlab-ci-local.validateCIFile",
+        "title": "GitLab CI: Validate .gitlab-ci.yml",
+        "icon": "$(validate)"
+      },
+      {
+        "command": "gitlab-ci-local.refreshJobs",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "gitlab-ci-local.runJobFromTree",
+        "title": "Run Job",
+        "icon": "$(play)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "resourceLangId == yaml && resourceFilename =~ /\\.gitlab-ci\\.ya?ml/",
+          "command": "gitlab-ci-local.validateCIFile",
+          "group": "1_gitlab_ci@3"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "gitlab-ci-local.refreshJobs",
+          "when": "view == gitlab-ci-local-jobs",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "gitlab-ci-local.runJobFromTree",
+          "when": "view == gitlab-ci-local-jobs && viewItem == job",
+          "group": "inline"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "gitlab-ci-local",
+          "title": "GitLab CI",
+          "icon": "$(beaker)"
+        }
+      ]
+    },
+    "views": {
+      "gitlab-ci-local": [
+        {
+          "id": "gitlab-ci-local-jobs",
+          "icon": "$(list-tree)",
+          "name": "Local Jobs"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --platform=node",
+    "watch": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --platform=node --watch",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package -o gitlab-ci-local-runner-$(node -p \"require('./package.json').version\").vsix",
+    "publish:vscode": "vsce publish",
+    "publish:ovsx": "ovsx publish",
+    "test": "npm run compile && node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^24.3.1",
+    "@types/vscode": "^1.103.0",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.9",
+    "eslint": "^9.35.0",
+    "glob": "^11.0.3",
+    "mocha": "^11.7.2",
+    "ovsx": "^0.10.5",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "gitlab-ci-local": "^4.61.1",
+    "js-yaml": "^4.1.0"
+  }
+}
