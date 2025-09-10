@@ -41,7 +41,7 @@ jobs:
         run: echo "version=${{ github.ref }} / ${{ github.ref_name }}"
 
       - name: Upload VSIX
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: vsix
           path: gitlab-ci-local-runner-${{ github.ref_name }}.vsix
