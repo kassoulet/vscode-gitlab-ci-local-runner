@@ -32,6 +32,20 @@ jobs:
         id: get_version
         run: echo "version=$(node -p 'require(\"./package.json\").version')" >> $GITHUB_OUTPUT
 
+      - name: Get version
+        id: get_version2
+        run: echo "version=$(node -p 'require(\"./package.json\").version')"
+
+      - name: Get version
+        id: get_version3
+        run: echo "version=${{ github.ref }} / ${{ github.ref_name }}"
+
+      - name: Upload VSIX
+        uses: actions/upload-artifact@v3
+        with:
+          name: vsix
+          path: gitlab-ci-local-runner-${{ github.ref_name }}.vsix
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
