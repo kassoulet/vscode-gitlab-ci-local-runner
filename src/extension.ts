@@ -166,5 +166,3 @@ function getJobNames(filePath: string): string[] {
         !key.startsWith('.') && !reservedKeywords.includes(key)
     );
 }
-
-
