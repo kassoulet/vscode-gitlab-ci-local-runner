@@ -52,8 +52,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: gitlab-ci-local-runner-${{ github.ref }}.vsix
-          asset_name: gitlab-ci-local-runner-${{ github.ref }}.vsix
+          asset_path: gitlab-ci-local-runner-${{ github.ref_name }}.vsix
+          asset_name: gitlab-ci-local-runner-${{ github.ref_name }}.vsix
           asset_content_type: application/vsix
 
       - name: Publish to Visual Studio Marketplace
