@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "*.*.*"
 
 permissions:
   contents: write
@@ -27,18 +27,6 @@ jobs:
 
       - name: Package extension
         run: npm run package
-
-      - name: Get version
-        id: get_version
-        run: echo "version=$(node -p 'require(\"./package.json\").version')" >> $GITHUB_OUTPUT
-
-      - name: Get version
-        id: get_version2
-        run: echo "version=$(node -p 'require(\"./package.json\").version')"
-
-      - name: Get version
-        id: get_version3
-        run: echo "version=${{ github.ref }} / ${{ github.ref_name }}"
 
       - name: Upload VSIX
         uses: actions/upload-artifact@v4
@@ -64,8 +52,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: gitlab-ci-local-runner-${{ steps.get_version.outputs.version }}.vsix
-          asset_name: gitlab-ci-local-runner-${{ steps.get_version.outputs.version }}.vsix
+          asset_path: gitlab-ci-local-runner-${{ github.ref }}.vsix
+          asset_name: gitlab-ci-local-runner-${{ github.ref }}.vsix
           asset_content_type: application/vsix
 
       - name: Publish to Visual Studio Marketplace
