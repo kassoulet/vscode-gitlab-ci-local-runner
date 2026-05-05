@@ -29,7 +29,7 @@ jobs:
         run: npm run package
 
       - name: Upload VSIX
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vsix
           path: gitlab-ci-local-runner-${{ github.ref_name }}.vsix
