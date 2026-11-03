@@ -39,16 +39,23 @@ function runCli(cwd: string, args: string[]): Promise<{ code: number | null; out
 suite('gitlab-ci-local CLI', function (this: Mocha.Suite) {
 	this.timeout(30000);
 
-	test('validates a real repository', withTempDir(async (dir) => {
-		initRepo(dir);
-
-		const { code, output } = await runCli(dir, ['--list']);
+	test('starts the bundled CLI', withTempDir(async (dir) => {
+		const { code, output } = await runCli(dir, ['--version']);
 
 		assert.strictEqual(code, 0, output);
+		assert.match(output, /\d+\.\d+\.\d+/);
 	}));
 
-	// The shell executor relies on bash, which the Windows runners do not provide for it.
+	// gitlab-ci-local needs Git Bash and rsync on Windows, which the runners lack.
 	if (process.platform !== 'win32') {
+		test('validates a real repository', withTempDir(async (dir) => {
+			initRepo(dir);
+
+			const { code, output } = await runCli(dir, ['--list']);
+
+			assert.strictEqual(code, 0, output);
+		}));
+
 		test('runs a job with the shell executor', withTempDir(async (dir) => {
 			initRepo(dir);
 
