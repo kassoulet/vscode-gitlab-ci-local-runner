@@ -47,7 +47,7 @@ async function validateCiFile(context: vscode.ExtensionContext) {
         return;
     }
     const workspaceRoot = path.dirname(ciFilePath);
-    executeCommand(context, ['--validate'], workspaceRoot);
+    executeCommand(context, ['--list'], workspaceRoot);
 }
 
 async function runSpecificJob(context: vscode.ExtensionContext, jobName?: string) {
