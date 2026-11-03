@@ -11,7 +11,7 @@
     "url": ""
   },
   "engines": {
-    "vscode": "^1.103.0"
+    "vscode": "^1.118.0"
   },
   "categories": [
     "Other"
@@ -109,7 +109,7 @@
     "@types/vscode": "^1.118.0",
     "@typescript-eslint/eslint-plugin": "^8.72.1",
     "@typescript-eslint/parser": "^8.72.1",
-    "@vscode/test-electron": "^2.5.2",
+    "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^3.6.0",
     "esbuild": "^0.28.0",
     "eslint": "^10.3.0",
