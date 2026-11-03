@@ -33,8 +33,8 @@ function withTempDir(run: (dir: string) => void | Promise<void>): () => Promise<
 	};
 }
 
-function writeCi(dir: string, content: string): string {
-	const filePath = path.join(dir, '.gitlab-ci.yml');
+function writeCi(dir: string, content: string, fileName = '.gitlab-ci.yml'): string {
+	const filePath = path.join(dir, fileName);
 	fs.writeFileSync(filePath, content);
 	return filePath;
 }
@@ -63,6 +63,27 @@ suite('JobsDataProvider', () => {
 		assert.ok(jobs.every(job => job.collapsibleState === vscode.TreeItemCollapsibleState.None));
 	}));
 
+	test('lists jobs from .gitlab-ci.yaml as well', withTempDir(async (dir) => {
+		writeCi(dir, sampleCi, '.gitlab-ci.yaml');
+		const jobs = await new JobsDataProvider(dir, extensionPath).getChildren();
+
+		assert.deepStrictEqual(jobs.map(job => job.label), ['build', 'test']);
+	}));
+
+	test('lists jobs that inherit script via extends and trigger jobs', withTempDir(async (dir) => {
+		writeCi(dir, `.template:
+  script: echo template
+inherited:
+  extends: .template
+triggered:
+  trigger:
+    include: child.yml
+`);
+		const jobs = await new JobsDataProvider(dir, extensionPath).getChildren();
+
+		assert.deepStrictEqual(jobs.map(job => job.label), ['inherited', 'triggered']);
+	}));
+
 	test('shows the stored status as the job description', withTempDir(async (dir) => {
 		writeCi(dir, sampleCi);
 		const provider = new JobsDataProvider(dir, extensionPath);
@@ -74,7 +95,7 @@ suite('JobsDataProvider', () => {
 		assert.strictEqual(build?.description, '(success)');
 	}));
 
-	test('returns no jobs when the workspace has no .gitlab-ci.yml', withTempDir(async (dir) => {
+	test('returns no jobs when the workspace has no CI file', withTempDir(async (dir) => {
 		const jobs = await new JobsDataProvider(dir, extensionPath).getChildren();
 
 		assert.deepStrictEqual(jobs, []);
@@ -87,4 +108,10 @@ suite('JobsDataProvider', () => {
 
 		assert.deepStrictEqual(await provider.getChildren(job), []);
 	}));
+});
+
+suite('Bundled CLI', () => {
+	test('has the entry point used by the extension', () => {
+		assert.ok(fs.existsSync(path.join(extensionPath, 'node_modules', 'gitlab-ci-local', 'dist', 'index.js')));
+	});
 });

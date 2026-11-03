@@ -36,12 +36,18 @@ export class JobsDataProvider implements vscode.TreeDataProvider<Job> {
         if (element) {
             return Promise.resolve([]);
         } else {
-            const gitlabCiPath = path.join(this.workspaceRoot, '.gitlab-ci.yml');
-            if (fs.existsSync(gitlabCiPath)) {
-                const gitlabCi = yaml.load(fs.readFileSync(gitlabCiPath, 'utf-8')) as Record<string, { script: unknown }>;
+            const gitlabCiPath = ['.gitlab-ci.yml', '.gitlab-ci.yaml']
+                .map(name => path.join(this.workspaceRoot, name))
+                .find(candidate => fs.existsSync(candidate));
+            if (gitlabCiPath) {
+                const gitlabCi = yaml.load(fs.readFileSync(gitlabCiPath, 'utf-8')) as Record<string, unknown>;
                 if (gitlabCi && typeof gitlabCi === 'object') {
                     this._jobs = Object.keys(gitlabCi)
-                        .filter(key => !key.startsWith('.') && typeof gitlabCi[key] === 'object' && gitlabCi[key] !== null && 'script' in gitlabCi[key])
+                        .filter(key => {
+                            const job = gitlabCi[key];
+                            return !key.startsWith('.') && typeof job === 'object' && job !== null &&
+                                ('script' in job || 'extends' in job || 'trigger' in job);
+                        })
                         .map(key => {
                             const status = this.jobStatuses.get(key);
                             return new Job(key, vscode.TreeItemCollapsibleState.None, this.extensionPath, status);
@@ -55,7 +61,7 @@ export class JobsDataProvider implements vscode.TreeDataProvider<Job> {
                 }
             } else {
                 this._jobs = [];
-                vscode.window.showInformationMessage('Workspace has no .gitlab-ci.yml file');
+                vscode.window.showInformationMessage('Workspace has no .gitlab-ci.yml or .gitlab-ci.yaml file');
                 this.setContextKey('gitlabCiLocal.hasJobs', false); // Set context key
                 return Promise.resolve([]);
             }

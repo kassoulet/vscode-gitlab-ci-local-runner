@@ -35,6 +35,16 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "gitlab-ci-local.runAll",
+        "title": "GitLab CI: Run all local jobs",
+        "icon": "$(run-all)"
+      },
+      {
+        "command": "gitlab-ci-local.runJob",
+        "title": "GitLab CI: Run a specific local job...",
+        "icon": "$(play)"
+      },
+      {
         "command": "gitlab-ci-local.runJobFromTree",
         "title": "Run Job",
         "icon": "$(play)"

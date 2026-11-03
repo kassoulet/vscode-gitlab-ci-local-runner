@@ -88,7 +88,7 @@ async function runSpecificJob(context: vscode.ExtensionContext, jobName?: string
 }
 
 function executeCommand(context: vscode.ExtensionContext, args: string[], cwd: string, jobName?: string) {
-    const executablePath = path.join(context.extensionPath, 'node_modules', '.bin', 'gitlab-ci-local');
+    const cliPath = path.join(context.extensionPath, 'node_modules', 'gitlab-ci-local', 'dist', 'index.js');
 
     const writeEmitter = new vscode.EventEmitter<string>();
     const pty: vscode.Pseudoterminal = {
@@ -104,7 +104,17 @@ function executeCommand(context: vscode.ExtensionContext, args: string[], cwd: s
                 jobsDataProvider.refresh();
             }
 
-            const child = spawn(executablePath, args, { cwd });
+            const child = spawn(process.execPath, [cliPath, ...args], {
+                cwd,
+                env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
+            });
+            child.on('error', (error) => {
+                termWriter(`\nFailed to start gitlab-ci-local: ${error.message}`);
+                if (jobName && jobsDataProvider) {
+                    jobsDataProvider.jobStatuses.set(jobName, '(failed)');
+                    jobsDataProvider.refresh();
+                }
+            });
             child.stdout.on('data', (data) => {
                 termWriter(data.toString());
             });
