@@ -41,7 +41,7 @@ export class JobsDataProvider implements vscode.TreeDataProvider<Job> {
                 const gitlabCi = yaml.load(fs.readFileSync(gitlabCiPath, 'utf-8')) as Record<string, { script: unknown }>;
                 if (gitlabCi && typeof gitlabCi === 'object') {
                     this._jobs = Object.keys(gitlabCi)
-                        .filter(key => typeof gitlabCi[key] === 'object' && gitlabCi[key] !== null && 'script' in gitlabCi[key])
+                        .filter(key => !key.startsWith('.') && typeof gitlabCi[key] === 'object' && gitlabCi[key] !== null && 'script' in gitlabCi[key])
                         .map(key => {
                             const status = this.jobStatuses.get(key);
                             return new Job(key, vscode.TreeItemCollapsibleState.None, this.extensionPath, status);

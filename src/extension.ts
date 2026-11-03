@@ -149,7 +149,7 @@ async function findCiFile(): Promise<string | undefined> {
     return undefined;
 }
 
-function getJobNames(filePath: string): string[] {
+export function getJobNames(filePath: string): string[] {
     const fileContents = fs.readFileSync(filePath, 'utf8');
     const data = yaml.load(fileContents) as Record<string, unknown>;
 
