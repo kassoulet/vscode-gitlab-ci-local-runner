@@ -109,7 +109,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "gitlab-ci-local": "^4.61.1",
+    "gitlab-ci-local": "^4.77.0",
     "js-yaml": "^4.1.0"
   }
 }
