@@ -1,12 +1,10 @@
 import * as assert from 'assert';
 import * as fs from 'fs';
-import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { getJobNames } from '../../extension';
 import { JobsDataProvider } from '../../jobsTree';
-
-const extensionPath = path.resolve(__dirname, '../../..');
+import { extensionPath, withTempDir, writeCi } from './helpers';
 
 const sampleCi = `stages: [build, test]
 image: node:20
@@ -21,23 +19,6 @@ build:
 test:
   script: npm test
 `;
-
-function withTempDir(run: (dir: string) => void | Promise<void>): () => Promise<void> {
-	return async () => {
-		const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gitlab-ci-local-'));
-		try {
-			await run(dir);
-		} finally {
-			fs.rmSync(dir, { recursive: true, force: true });
-		}
-	};
-}
-
-function writeCi(dir: string, content: string, fileName = '.gitlab-ci.yml'): string {
-	const filePath = path.join(dir, fileName);
-	fs.writeFileSync(filePath, content);
-	return filePath;
-}
 
 suite('getJobNames', () => {
 	test('returns job names, skipping reserved keywords and hidden jobs', withTempDir((dir) => {
