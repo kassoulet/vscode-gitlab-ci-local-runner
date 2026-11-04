@@ -60,9 +60,14 @@
       ],
       "view/title": [
         {
+          "command": "gitlab-ci-local.runAll",
+          "when": "view == gitlab-ci-local-jobs",
+          "group": "navigation@1"
+        },
+        {
           "command": "gitlab-ci-local.refreshJobs",
           "when": "view == gitlab-ci-local-jobs",
-          "group": "navigation"
+          "group": "navigation@2"
         }
       ],
       "view/item/context": [
