@@ -17,6 +17,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Check publishing token is available
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          if [ -z "${VSCE_PAT//[[:space:]]/}" ]; then
+            echo "::error::VSCE_PAT is empty in this job. vsce would fail with 'TF400813: The user aaaaaaaa-... is not authorized', which hides the real cause. Check that VSCE_PAT is a repository-level Actions secret, that it is not an environment, Dependabot or Codespaces secret, and that this run started after it was saved."
+            exit 1
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
