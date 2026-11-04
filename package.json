@@ -2,7 +2,7 @@
   "name": "gitlab-ci-local-runner",
   "displayName": "GitLab CI Local Runner",
   "description": "Run GitLab CI/CD jobs locally using gitlab-ci-local",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "kassoulet",
   "icon": "resources/gitlab-logo-128-rgb.png",
   "license": "MIT",
