@@ -41,6 +41,16 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "VSIX name: gitlab-ci-local-runner-$version.vsix"
 
+      - name: Check tag matches package version
+        env:
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ steps.pkg.outputs.version }}
+        run: |
+          if [ "${TAG#v}" != "$VERSION" ]; then
+            echo "::error::Tag '$TAG' does not match the version in package.json ('$VERSION'). vsce always publishes the package.json version, so this tag would release the wrong version. Bump package.json or push a tag that matches it."
+            exit 1
+          fi
+
       - name: Package extension
         run: npm run package
 
