@@ -48,6 +48,11 @@
         "command": "gitlab-ci-local.runJobFromTree",
         "title": "Run Job",
         "icon": "$(play)"
+      },
+      {
+        "command": "gitlab-ci-local.editJob",
+        "title": "Edit Job",
+        "icon": "$(edit)"
       }
     ],
     "menus": {
@@ -74,7 +79,12 @@
         {
           "command": "gitlab-ci-local.runJobFromTree",
           "when": "view == gitlab-ci-local-jobs && viewItem == job",
-          "group": "inline"
+          "group": "inline@1"
+        },
+        {
+          "command": "gitlab-ci-local.editJob",
+          "when": "view == gitlab-ci-local-jobs && viewItem == job",
+          "group": "inline@2"
         }
       ]
     },

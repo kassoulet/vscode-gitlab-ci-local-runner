@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import { JobsDataProvider } from './jobsTree';
+import { findJobLineIndex } from './ciFile';
 import { spawn } from 'child_process';
 
 let jobsDataProvider: JobsDataProvider | undefined;
@@ -26,7 +27,8 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('gitlab-ci-local.runAll', () => runAllJobs(context)),
         vscode.commands.registerCommand('gitlab-ci-local.runJob', (jobName) => runSpecificJob(context, jobName)),
         vscode.commands.registerCommand('gitlab-ci-local.validateCIFile', () => validateCiFile(context)),
-        vscode.commands.registerCommand('gitlab-ci-local.runJobFromTree', (job) => runSpecificJob(context, job.label))
+        vscode.commands.registerCommand('gitlab-ci-local.runJobFromTree', (job) => runSpecificJob(context, job.label)),
+        vscode.commands.registerCommand('gitlab-ci-local.editJob', (job) => editJobInCiFile(job?.label ?? job))
     );
 }
 
@@ -39,6 +41,31 @@ async function runAllJobs(context: vscode.ExtensionContext) {
     }
     const workspaceRoot = path.dirname(ciFilePath);
     executeCommand(context, [], workspaceRoot);
+}
+
+async function editJobInCiFile(jobName?: string) {
+    if (!jobName) {
+        vscode.window.showWarningMessage('No job selected to edit.');
+        return;
+    }
+    const ciFilePath = await findCiFile();
+    if (!ciFilePath) {
+        return;
+    }
+
+    const document = await vscode.workspace.openTextDocument(vscode.Uri.file(ciFilePath));
+    const lineIndex = findJobLineIndex(document.getText(), jobName);
+    const editor = await vscode.window.showTextDocument(document, { preview: false });
+
+    if (lineIndex < 0) {
+        vscode.window.showWarningMessage(`Could not find a definition for '${jobName}' in ${path.basename(ciFilePath)}.`);
+        return;
+    }
+
+    const lineLength = document.lineAt(lineIndex).text.trimEnd().length;
+    const selection = new vscode.Selection(lineIndex, 0, lineIndex, lineLength);
+    editor.selection = selection;
+    editor.revealRange(selection, vscode.TextEditorRevealType.InCenter);
 }
 
 async function validateCiFile(context: vscode.ExtensionContext) {

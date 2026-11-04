@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { getJobNames } from '../../extension';
+import { findJobLineIndex } from '../../ciFile';
 import { JobsDataProvider } from '../../jobsTree';
 import { extensionPath, withTempDir, writeCi } from './helpers';
 
@@ -94,5 +95,34 @@ triggered:
 suite('Bundled CLI', () => {
 	test('has the entry point used by the extension', () => {
 		assert.ok(fs.existsSync(path.join(extensionPath, 'node_modules', 'gitlab-ci-local', 'dist', 'index.js')));
+	});
+});
+
+suite('findJobLineIndex', () => {
+	test('finds a job key at the top level', () => {
+		assert.strictEqual(findJobLineIndex(sampleCi, 'build'), 8);
+		assert.strictEqual(findJobLineIndex(sampleCi, 'test'), 10);
+	});
+
+	test('returns -1 when the job is not defined', () => {
+		assert.strictEqual(findJobLineIndex(sampleCi, 'missing'), -1);
+	});
+
+	test('ignores mentions outside column zero', () => {
+		const ci = `variables:\n  build: nope\ndeploy:\n  script: echo deploy\n`;
+
+		assert.strictEqual(findJobLineIndex(ci, 'build'), -1);
+		assert.strictEqual(findJobLineIndex(ci, 'deploy'), 2);
+	});
+
+	test('handles quoted names and regular-expression characters', () => {
+		const ci = `"my job":\n  script: echo quoted\ndeploy.prod:\n  script: echo dotted\ndeployXprod:\n  script: echo other\n`;
+
+		assert.strictEqual(findJobLineIndex(ci, 'my job'), 0);
+		assert.strictEqual(findJobLineIndex(ci, 'deploy.prod'), 2);
+	});
+
+	test('works with CRLF line endings', () => {
+		assert.strictEqual(findJobLineIndex('build:\r\n  script: npm run build\r\n', 'build'), 0);
 	});
 });
