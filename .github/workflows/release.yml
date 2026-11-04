@@ -34,6 +34,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Read package version
+        id: pkg
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "VSIX name: gitlab-ci-local-runner-$version.vsix"
+
       - name: Package extension
         run: npm run package
 
@@ -41,7 +48,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: vsix
-          path: gitlab-ci-local-runner-${{ github.ref_name }}.vsix
+          path: gitlab-ci-local-runner-${{ steps.pkg.outputs.version }}.vsix
 
       - name: Create Release
         id: create_release
@@ -50,7 +57,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          release_name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
 
@@ -61,8 +68,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: gitlab-ci-local-runner-${{ github.ref_name }}.vsix
-          asset_name: gitlab-ci-local-runner-${{ github.ref_name }}.vsix
+          asset_path: gitlab-ci-local-runner-${{ steps.pkg.outputs.version }}.vsix
+          asset_name: gitlab-ci-local-runner-${{ steps.pkg.outputs.version }}.vsix
           asset_content_type: application/vsix
 
       - name: Publish to Visual Studio Marketplace
